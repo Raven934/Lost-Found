@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Requests\RegisterRequest;
-use App\Http\Requests\LoginRequestRequest;
+use App\Http\Requests\LoginRequest;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
@@ -23,7 +25,7 @@ class AuthController extends Controller
             'user'=>$user
         ], 201);
     } catch(\Exception){
-        return respose()->json([
+        return response()->json([
             'error' => 'Database Error',
                 'message' => 'Failed to create user. Email might already exist.',
                 'details' => 'Please try with a different email address.'
@@ -57,7 +59,7 @@ class AuthController extends Controller
    
    }
 
-   public function logout( $request){
+   public function logout(Request $request){
     try{
         if(!$request->user() || !$request->user()->currentAccessToken()){
             return response()->json([

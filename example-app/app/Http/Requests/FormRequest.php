@@ -25,7 +25,7 @@ class StorePostRequest extends FormRequest
                 'title' => 'required|string|max:255',
                 'description' => 'required|string',
                 'type' => 'required|in:lost,found',
-                'image'=>'straing',
+                'image'=>'string',
                 'location' => 'required|string',
                 'date' => 'required|date',
         ];

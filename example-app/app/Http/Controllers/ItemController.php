@@ -2,10 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UpdateItemRequest;
+use App\Models\Item;
+use App\Services\CloudinaryService;
+use Cloudinary\Cloudinary;
+use Illuminate\Foundation\Http\FormRequest as HttpFormRequest;
 use Illuminate\Http\Request;
 
 class ItemController extends Controller
 {
+    protected $cloudinary;
+
+    public function __construct(CloudinaryService $cloudinary)
+    {
+        $this->cloudinary = $cloudinary;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -41,7 +53,7 @@ class ItemController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(FormRequest $request)
+    public function store(HttpFormRequest $request)
     {
         try{
        $user=$request->user();
@@ -49,38 +61,38 @@ class ItemController extends Controller
     if(!$user){
         return response()->json([
                     'error' => 'Authentication Required',
-                    'message' => 'You must be logged in to create a item.',
+                    'message' => 'You must be logged in to create an item.',
                     'details' => 'Please login and try again.'
         ], 401);
 
     };
     if($request->hasFile('image')){
-        $uploadImage = Cloudinary::upload(
-            $request->file('image')->getSecurePath()
-        );
-        $infos['image']=$uploadImage->getSecurePath();
+        $uploadImage = $this->cloudinary->upload($request->file('image'),'items');
+        $info['image']=$uploadImage;
     }
-    $item=Item::create($infos);
+
+    $info['user_id'] = $user->id;
+    
+    $item=Item::create($info);
       return response()->json([
                 'message' => 'Item created successfully',
                 'item' => $item
             ], 201);
-        }catch (\Exception $e){
-               if ($e->getCode() == '23000') {
-                return response()->json([
-                    'error' => 'Database Constraint Error',
-                    'message' => 'Invalid user ID or database constraint violation.',
-                    'details' => 'Please check that the user exists and try again.'
-                ], 422);
-        }
- 
-
+    }catch (\Exception $e){
+           if ($e->getCode() == '23000') {
+            return response()->json([
+                'error' => 'Database Constraint Error',
+                'message' => 'Invalid user ID or database constraint violation.',
+                'details' => 'Please check that the user exists and try again.'
+            ], 422);
     }
+    }
+}
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+/**
+ * Display the specified resource.
+ */
+public function show(string $id)
     {
         try{
         $item= Item::findOrFail($id);
