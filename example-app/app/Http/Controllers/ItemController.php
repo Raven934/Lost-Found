@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AddItemRequest;
 use App\Http\Requests\UpdateItemRequest;
+use App\Http\Requests\FormRequest;
 use App\Models\Item;
 use App\Services\CloudinaryService;
 use Cloudinary\Cloudinary;
@@ -53,11 +55,10 @@ class ItemController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(HttpFormRequest $request)
+    public function store(AddItemRequest $request)
     {
         try{
-       $user=$request->user();
-       $info = $request->validated();
+        $user=$request->user();
     if(!$user){
         return response()->json([
                     'error' => 'Authentication Required',
@@ -66,27 +67,25 @@ class ItemController extends Controller
         ], 401);
 
     };
+    $data = $request->validated();
+
     if($request->hasFile('image')){
-        $uploadImage = $this->cloudinary->upload($request->file('image'),'items');
-        $info['image']=$uploadImage;
+        $data['image'] = app(CloudinaryService::class)->upload($request->file('image'), 'items');
     }
 
-    $info['user_id'] = $user->id;
+    $data['user_id'] = $user->id;
     
-    $item=Item::create($info);
+    $item=Item::create($data);
       return response()->json([
                 'message' => 'Item created successfully',
-                'item' => $item
+                'item' =>  $item->fresh()
             ], 201);
-    }catch (\Exception $e){
-           if ($e->getCode() == '23000') {
-            return response()->json([
-                'error' => 'Database Constraint Error',
-                'message' => 'Invalid user ID or database constraint violation.',
-                'details' => 'Please check that the user exists and try again.'
-            ], 422);
-    }
-    }
+}catch (\Exception $e){
+      return response()->json([
+        'error' => 'Creation failed',
+        'details' => $e->getMessage()
+    ], 500);
+}
 }
 
 /**
@@ -129,6 +128,7 @@ public function show(string $id)
            return response()->json([
     'message' => 'Item updated successfully',
     'item' => $item
+
 ], 200);
 
         } catch (\Exception $e) {

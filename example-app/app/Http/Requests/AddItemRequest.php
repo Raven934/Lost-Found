@@ -4,14 +4,14 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StorePostRequest extends FormRequest
+class AddItemRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true;
+        return false;
     }
 
     /**
@@ -21,11 +21,11 @@ class StorePostRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+         return [
                 'title' => 'required|string|max:255',
                 'description' => 'required|string',
                 'type' => 'required|in:lost,found',
-                'image'=>'string',
+                'image' => 'nullable|file|image|max:2048',
                 'location' => 'required|string',
                 'date' => 'required|date',
         ];

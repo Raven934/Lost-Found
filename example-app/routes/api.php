@@ -24,6 +24,7 @@ Route::post('/logout',[AuthController::class, 'logout'])->middleware('auth:sanct
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function(){
     Route::get('/allitems',[ItemController::class, 'index']);
     Route::get('/items/{id}',[ItemController::class, 'show']);
+    Route::post('/additem',[ItemController::class, 'store']);
     Route::put('/updateitems/{id}',[ItemController::class, 'update']);
     Route::delete('/deleteitems/{id}',[ItemController::class, 'destroy']);
 
