@@ -25,9 +25,10 @@ class UpdateItemRequest extends FormRequest
                 'title' => 'string|max:255',
                 'description' => 'string',
                 'type' => 'in:lost,found',
-                'image'=>'string',
+                'image' => 'nullable|file|image|max:2048',
                 'location' => 'string',
                 'date' => 'date',
+                'status'=>'in:unclaimed,claimed'
         ];
     }
 }

@@ -14,7 +14,9 @@ class Item extends Model
         'type',
         'image',
         'location', 
-        'date'
+        'date',
+        'status',
+        'user_id'
     ];
 
      public function user(){

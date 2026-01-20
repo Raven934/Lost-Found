@@ -7,20 +7,19 @@ use Illuminate\Http\Request;
 
 class CheckRole
 {
-public function handle(Request $request, Closure $next, $role)
-{
-    try {
-        if (!auth()->check()) {
-            return response()->json([
-                'error' => 'Authentication Required',
+    public function handle(Request $request, Closure $next, $role)
+    {
+        try {
+        $user = $request->user();
+
+        if (!$user) {
+           return response()->json([
+                'error' => 'Unauthenticated',
                 'message' => 'You must be logged in to access this resource.',
-                'details' => 'Please login with valid credentials and try again.',
-                'required_role' => $role,
-                'status_code' => 401
             ], 401);
         }
 
-        $user = auth()->user();
+
 
         if ($user->role !== $role) {
             return response()->json([
@@ -29,9 +28,9 @@ public function handle(Request $request, Closure $next, $role)
                 'details' => "This endpoint requires '{$role}' role access.",
                 'your_role' => $user->role,
                 'required_role' => $role,
-                'status_code' => 403
             ], 403);
         }
+
 
         return $next($request);
     } catch (\Exception $e) {

@@ -20,12 +20,16 @@ use App\Http\Controllers\ItemController;
 Route::post('/register',[AuthController::class, 'register']);
 Route::post('/login',[AuthController::class, 'login']);
 Route::post('/logout',[AuthController::class, 'logout'])->middleware('auth:sanctum');
+Route::get('/allitems',[ItemController::class, 'index']);
+Route::get('/itemfilter',[ItemController::class, 'filter']);
+Route::get('/items/{id}',[ItemController::class, 'show']);
+
+Route::middleware(['auth:sanctum',])->group(function(){
+    Route::get('/myitems',[ItemController::class, 'showmine']);
+    Route::put('/updateitems/{id}',[ItemController::class, 'update']);
+    Route::post('/additem',[ItemController::class, 'store']);
+});
 
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function(){
-    Route::get('/allitems',[ItemController::class, 'index']);
-    Route::get('/items/{id}',[ItemController::class, 'show']);
-    Route::post('/additem',[ItemController::class, 'store']);
-    Route::put('/updateitems/{id}',[ItemController::class, 'update']);
-    Route::delete('/deleteitems/{id}',[ItemController::class, 'destroy']);
-
+Route::delete('/deleteitems/{id}',[ItemController::class, 'destroy']);
 });

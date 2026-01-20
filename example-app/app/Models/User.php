@@ -42,11 +42,17 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'password'=> 'hashed'
     ];
 
       public function isAdmin(): bool
     {
         return $this->role === 'admin';
+    }
+
+     public function isUser(): bool
+    {
+        return $this->role === 'user';
     }
 
     public function item(){

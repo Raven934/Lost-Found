@@ -124,7 +124,20 @@ public function show(string $id)
     {
         try{
            $item= Item::findOrFail($id);
-           $item->update($request->validated());
+           $user=$request->user();
+           if($user->role !=='admin'){
+            if($item->user_id !==$user->id){
+                  return response()->json([
+                    'error' => 'Forbidden',
+                    'message' => 'You are not allowed to update this item'
+                ], 403);
+            }
+           $data=$request->except('status');
+        }else{
+            $data=$request->validated();
+
+        }
+           $item->update($data);
            return response()->json([
     'message' => 'Item updated successfully',
     'item' => $item
@@ -138,6 +151,37 @@ public function show(string $id)
     ], 500);
         }
     }
+
+      public function filter(Request $request){
+             $type=$request->input('type');
+    $location=$request->input('location');
+    $query=Item::query();
+    if($type){
+        $query->where('type', $type);
+    }
+    if($location){
+        $query->where('location',$location);
+    }
+    $items= $query->get();
+    
+     return response()->json([
+        'message' => 'Items retrieved successfully',
+        'items' => $items,
+        'count' => $items->count()
+       ], 200);
+    }
+
+    public function showmine(Request $request){
+        $user=$request->user();
+        $item = $user->items()->get();
+          return response()->json([
+        'message' => 'Items retrieved successfully',
+        'items' => $item,
+        'count' => $item->count()
+    ], 200);
+    }
+
+
 
     /**
      * Remove the specified resource from storage.
@@ -171,4 +215,5 @@ public function show(string $id)
             ], 404);
         }
     }
+
 }
