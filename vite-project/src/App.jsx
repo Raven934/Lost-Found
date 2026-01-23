@@ -1,13 +1,20 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import React from 'react'
+import Login from './pages/auth/Login'
+import Register from './pages/auth/Register'
+import Home from './pages/home/Home'
 import './App.css'
+import { Routes, Route, Navigate } from 'react-router-dom'
 
 function App() {
 
   return (
     <div>
-    </div>
+      <Routes>
+       <Route path="/" element={<Home />} />
+        <Route path='/login' element={<Login/>} />
+        <Route path='/register' element={<Register/>} />
+      </Routes>
+    </div>  
   )
 }
 

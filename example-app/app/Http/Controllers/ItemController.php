@@ -4,27 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AddItemRequest;
 use App\Http\Requests\UpdateItemRequest;
-use App\Http\Requests\FormRequest;
 use App\Models\Item;
-use App\Services\CloudinaryService;
-use Cloudinary\Cloudinary;
-use Illuminate\Foundation\Http\FormRequest as HttpFormRequest;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Http\Request;
 
 class ItemController extends Controller
 {
-    protected $cloudinary;
-
-    public function __construct(CloudinaryService $cloudinary)
-    {
-        $this->cloudinary = $cloudinary;
-    }
 
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
+    public function index(){
            try{
              $items=Item::all();
 
@@ -55,37 +45,41 @@ class ItemController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(AddItemRequest $request)
-    {
+    public function store(AddItemRequest $request) {
         try{
         $user=$request->user();
-    if(!$user){
+    
+         if(!$user){
         return response()->json([
                     'error' => 'Authentication Required',
                     'message' => 'You must be logged in to create an item.',
                     'details' => 'Please login and try again.'
         ], 401);
 
-    };
-    $data = $request->validated();
+        };
+          $data = $request->validated();
 
-    if($request->hasFile('image')){
-        $data['image'] = app(CloudinaryService::class)->upload($request->file('image'), 'items');
-    }
+        if ($request->hasFile('image')) {
+                $uploadedImage = Cloudinary::upload(
+                    $request->file('image')->getRealPath()
+                );
+                $data['image'] = $uploadedImage->getSecurePath();
+        }
+          
 
-    $data['user_id'] = $user->id;
+          $data['user_id'] = $user->id;
     
-    $item=Item::create($data);
-      return response()->json([
+          $item=Item::create($data);
+             return response()->json([
                 'message' => 'Item created successfully',
                 'item' =>  $item->fresh()
             ], 201);
-}catch (\Exception $e){
+     }catch (\Exception $e){
       return response()->json([
         'error' => 'Creation failed',
         'details' => $e->getMessage()
-    ], 500);
-}
+     ], 500);    
+    }
 }
 
 /**
@@ -120,8 +114,7 @@ public function show(string $id)
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateItemRequest $request, string $id)
-    {
+    public function update(UpdateItemRequest $request, string $id) {
         try{
            $item= Item::findOrFail($id);
            $user=$request->user();
@@ -137,50 +130,69 @@ public function show(string $id)
             $data=$request->validated();
 
         }
+          if ($request->hasFile('image')) {
+            $uploadedImage = Cloudinary::upload(
+                $request->file('image')->getRealPath()
+            );
+            $data['image'] = $uploadedImage->getSecurePath();
+        }
            $item->update($data);
            return response()->json([
-    'message' => 'Item updated successfully',
-    'item' => $item
+      'message' => 'Item updated successfully',
+      'item' => $item
 
-], 200);
+       ], 200);
 
         } catch (\Exception $e) {
-    return response()->json([
+       return response()->json([
         'error' => 'Update failed',
         'details' => $e->getMessage()
-    ], 500);
+       ], 500);
         }
     }
 
-      public function filter(Request $request){
-             $type=$request->input('type');
-    $location=$request->input('location');
-    $query=Item::query();
-    if($type){
-        $query->where('type', $type);
-    }
-    if($location){
-        $query->where('location',$location);
-    }
-    $items= $query->get();
-    
-     return response()->json([
+
+    public function filter(Request $request){
+      $query = Item::query();
+
+      if ($request->filled('type')) {
+        $query->where('type', $request->input('type'));
+      }
+
+      if ($request->filled('location')) {
+        $query->where('location', $request->input('location'));
+      }
+
+      $items = $query->get();
+
+       return response()->json([
         'message' => 'Items retrieved successfully',
         'items' => $items,
         'count' => $items->count()
-       ], 200);
-    }
+     ], 200);
+}
 
     public function showmine(Request $request){
-        $user=$request->user();
-        $item = $user->items()->get();
+    try{
+       $user=$request->user();
+        $item = $user->item()->get();
+
+
           return response()->json([
         'message' => 'Items retrieved successfully',
         'items' => $item,
         'count' => $item->count()
     ], 200);
+
+    }catch(\Exception $e){
+       return response()->json([
+        'error' => 'Failed to retrieve items',
+        'message' => 'Something went wrong while fetching your items'
+    ], 500);
     }
 
+    }
+        
 
 
     /**
