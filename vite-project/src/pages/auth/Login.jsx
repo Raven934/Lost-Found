@@ -1,23 +1,31 @@
 import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom';
 import { login } from '../../api';
+import { useAuth } from '../../context/AuthContext';
+
 export default function Login() {
   const [email, setEmail]=useState('');
   const [password, setPassword]=useState('');
-  const [error, setError]=useState('')
+  const [error, setError]=useState('');
   const navigate=useNavigate();
+  const { loginUser } = useAuth();
 
   const handleSubmit= (e)=>{
     e.preventDefault();
-    setError('')
+    setError('');
 
     if(!email || !password){
      setError('please fill in all fields');
      return;
     }
-    login({ email,password}).then(()=>{navigate('/');}).catch(()=>{
-      setError('Invalid email or password')
-    })
+    login({ email,password})
+      .then((response)=>{
+        loginUser(response.user, response.token);
+        navigate('/');
+      })
+      .catch(()=>{
+        setError('Invalid email or password');
+      });
   }
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -42,7 +50,7 @@ export default function Login() {
              className='w-full px-4 py-2 border rounded-lg' required/>
              
              <button type='submit'
-             className='w-full px-4 py-2 border rounded-lg bg-black text-white mt-5 hover:bg-red-600 cursor-pointer'>Log in
+             className='w-full px-4 py-2 border rounded-lg bg-purple text-white mt-5 hover:bg-red-600 cursor-pointer'>Log in
              </button>
              <p className='text-center text-gray-600'>Don't have an account?{' '}
               <Link to='/register' className='font-semibold hover:underline'>Register now</Link>

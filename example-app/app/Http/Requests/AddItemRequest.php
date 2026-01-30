@@ -28,6 +28,7 @@ class AddItemRequest extends FormRequest
                 'image' => 'nullable|file|image|max:2048',
                 'location' => 'required|string',
                 'date' => 'required|date',
+                'status' => 'nullable|string|in:claimed,unclaimed',
         ];
     }
 }

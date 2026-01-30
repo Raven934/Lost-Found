@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\AddItemRequest;
 use App\Http\Requests\UpdateItemRequest;
 use App\Models\Item;
-use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ItemController extends Controller
 {
@@ -60,10 +60,8 @@ class ItemController extends Controller
           $data = $request->validated();
 
         if ($request->hasFile('image')) {
-                $uploadedImage = Cloudinary::upload(
-                    $request->file('image')->getRealPath()
-                );
-                $data['image'] = $uploadedImage->getSecurePath();
+                $path = $request->file('image')->store('items', 'public');
+                $data['image'] = Storage::url($path);
         }
           
 
@@ -131,10 +129,8 @@ public function show(string $id)
 
         }
           if ($request->hasFile('image')) {
-            $uploadedImage = Cloudinary::upload(
-                $request->file('image')->getRealPath()
-            );
-            $data['image'] = $uploadedImage->getSecurePath();
+            $path = $request->file('image')->store('items', 'public');
+            $data['image'] = Storage::url($path);
         }
            $item->update($data);
            return response()->json([
