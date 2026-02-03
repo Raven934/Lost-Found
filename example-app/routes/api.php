@@ -21,7 +21,6 @@ Route::post('/register',[AuthController::class, 'register']);
 Route::post('/login',[AuthController::class, 'login']);
 Route::post('/logout',[AuthController::class, 'logout'])->middleware('auth:sanctum');
 Route::get('/allitems',[ItemController::class, 'index']);
-Route::get('/itemfilter',[ItemController::class, 'filter']);
 Route::get('/items/{id}',[ItemController::class, 'show']);
 
 Route::middleware(['auth:sanctum',])->group(function(){

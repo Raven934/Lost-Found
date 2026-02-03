@@ -9,17 +9,13 @@ class CheckRole
 {
     public function handle(Request $request, Closure $next, $role)
     {
-        try {
         $user = $request->user();
-
         if (!$user) {
            return response()->json([
                 'error' => 'Unauthenticated',
                 'message' => 'You must be logged in to access this resource.',
             ], 401);
         }
-
-
 
         if ($user->role !== $role) {
             return response()->json([
@@ -31,15 +27,6 @@ class CheckRole
             ], 403);
         }
 
-
         return $next($request);
-    } catch (\Exception $e) {
-        return response()->json([
-            'error' => 'Authorization Check Failed',
-            'message' => 'An error occurred while checking your permissions.',
-            'details' => 'Please try again later or contact support.',
-            'status_code' => 500
-        ], 500);
-    }
 }
 }

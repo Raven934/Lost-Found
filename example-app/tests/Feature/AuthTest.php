@@ -40,7 +40,14 @@ class AuthTest extends TestCase
             $this->assertInstanceOf(User::class, $user);
             $this->assertEquals('test', $user->name);
             $this->assertDatabaseHas('users', ['email'=> $user->email]);
+          
+            $response = $this->postJson('/api/login', [
+    'email' => $user->email,
+    'password' => '1234567'
+]);
+$response->assertStatus(200)->assertJsonStructure(['message','user','token']);
     }
+
 
      public function test_user_can_logout(){
     $user=User::factory()->create();

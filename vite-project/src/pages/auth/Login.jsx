@@ -50,7 +50,7 @@ export default function Login() {
              className='w-full px-4 py-2 border rounded-lg' required/>
              
              <button type='submit'
-             className='w-full px-4 py-2 border rounded-lg bg-purple text-white mt-5 hover:bg-red-600 cursor-pointer'>Log in
+             className='w-full px-4 py-2 border rounded-lg bg-purple-600 text-white mt-5 hover:bg-red-600 cursor-pointer'>Log in
              </button>
              <p className='text-center text-gray-600'>Don't have an account?{' '}
               <Link to='/register' className='font-semibold hover:underline'>Register now</Link>

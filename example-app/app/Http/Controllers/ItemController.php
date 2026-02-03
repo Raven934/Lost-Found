@@ -15,7 +15,6 @@ class ItemController extends Controller
      * Display a listing of the resource.
      */
     public function index(){
-           try{
              $items=Item::all();
 
                return response()->json([
@@ -23,13 +22,6 @@ class ItemController extends Controller
                 'items' => $items,
                 'count' => $items->count()
             ], 200);
-        }catch(\Exception){
-            return response()->json([
-                'error' => 'Database Error',
-                'message' => 'Failed to retrieve items from database.',
-                'details' => 'Please check database connection and try again.'
-            ], 500);
-        }
     }
 
     /**
@@ -46,7 +38,6 @@ class ItemController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(AddItemRequest $request) {
-        try{
         $user=$request->user();
     
          if(!$user){
@@ -72,12 +63,6 @@ class ItemController extends Controller
                 'message' => 'Item created successfully',
                 'item' =>  $item->fresh()
             ], 201);
-     }catch (\Exception $e){
-      return response()->json([
-        'error' => 'Creation failed',
-        'details' => $e->getMessage()
-     ], 500);    
-    }
 }
 
 /**
@@ -85,21 +70,15 @@ class ItemController extends Controller
  */
 public function show(string $id)
     {
-        try{
         $item= Item::findOrFail($id);
         return response()->json([
             'message'=>'Item retreived successfully.',
             'item'=>$item
 
         ],200);
-        } catch (\Exception $e) {
-    return response()->json([
-        'error' => 'Failed to retrieve item',
-        'details' => $e->getMessage()
-    ], 404);
 }
         
-    }
+
 
     /**
      * Show the form for editing the specified resource.
@@ -113,7 +92,7 @@ public function show(string $id)
      * Update the specified resource in storage.
      */
     public function update(UpdateItemRequest $request, string $id) {
-        try{
+
            $item= Item::findOrFail($id);
            $user=$request->user();
            if($user->role !=='admin'){
@@ -138,54 +117,18 @@ public function show(string $id)
       'item' => $item
 
        ], 200);
-
-        } catch (\Exception $e) {
-       return response()->json([
-        'error' => 'Update failed',
-        'details' => $e->getMessage()
-       ], 500);
-        }
     }
 
-
-    public function filter(Request $request){
-      $query = Item::query();
-
-      if ($request->filled('type')) {
-        $query->where('type', $request->input('type'));
-      }
-
-      if ($request->filled('location')) {
-        $query->where('location', $request->input('location'));
-      }
-
-      $items = $query->get();
-
-       return response()->json([
-        'message' => 'Items retrieved successfully',
-        'items' => $items,
-        'count' => $items->count()
-     ], 200);
-}
-
     public function showmine(Request $request){
-    try{
+
        $user=$request->user();
         $item = $user->item()->get();
-
 
           return response()->json([
         'message' => 'Items retrieved successfully',
         'items' => $item,
         'count' => $item->count()
     ], 200);
-
-    }catch(\Exception $e){
-       return response()->json([
-        'error' => 'Failed to retrieve items',
-        'message' => 'Something went wrong while fetching your items'
-    ], 500);
-    }
 
     }
         
@@ -196,32 +139,12 @@ public function show(string $id)
      */
     public function destroy(string $id)
     {
-        try{
-            if(!$id || !is_numeric($id)){
-                return response()->json([
-                    'error' => 'Invalid Parameter',
-                    'message' => 'A valid item ID is required.',
-                    'details' => 'Please provide a numeric item ID.'
-                ], 400);
-            }
-
                 $item= Item::findOrFail($id);
-                $itemData = $item->toArray();
                 $item->delete();
-                
-            
+
              return response()->json([
                 'message' => 'Item deleted successfully',
-                'deleted_item' => $itemData
             ], 200);
-            
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Item Not Found',
-                'message' => 'The item you are trying to delete does not exist.',
-                'details' => 'Please check the item ID and try again.'
-            ], 404);
-        }
     }
 
 }

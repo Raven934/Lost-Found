@@ -13,7 +13,6 @@ class AuthController extends Controller
 {
 
    public function register(RegisterRequest $request){
-    try{
         $user= User::create([
             'name'=>$request->name,
             'email'=>$request->email,
@@ -24,17 +23,9 @@ class AuthController extends Controller
             'message'=> 'User registered successfully',
             'user'=>$user
         ], 201);
-    } catch(\Exception){
-        return response()->json([
-            'error' => 'Database Error',
-                'message' => 'Failed to create user. Email might already exist.',
-                'details' => 'Please try with a different email address.'
-        ], 422);
-    };
    }
 
    public function login(LoginRequest $request){
-    try{
         if(!Auth::attempt($request->only('email','password'))){
             return response()->json([
                'error' => 'Authentication Failed',
@@ -49,18 +40,10 @@ class AuthController extends Controller
                 'user' => $user,
                 'token' => $token
         ], 200);
-    } catch(\Exception){
-        return response()->json([
-            'error' => 'User Not Found',
-            'message' => 'User account could not be found.',
-            'details' => 'Please check your email address.'
-        ], 404);
-    }
    
    }
 
    public function logout(Request $request){
-    try{
         if(!$request->user() || !$request->user()->currentAccessToken()){
             return response()->json([
                  'error' => 'Not Authenticated',
@@ -73,14 +56,6 @@ class AuthController extends Controller
                 'message' => 'Logout successful',
                 'details' => 'You have been successfully logged out.'
             ], 200);
-        } catch (\Exception) {
-            return response()->json([
-                'error' => 'Logout Failed',
-                'message' => 'An error occurred during logout.',
-                'details' => 'Please try again or clear your browser cache.'
-            ], 500);
-        };
-
 
    }
 
