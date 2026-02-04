@@ -7,6 +7,7 @@ export default function Login() {
   const [email, setEmail]=useState('');
   const [password, setPassword]=useState('');
   const [error, setError]=useState('');
+  const [showToast, setShowToast] = useState(false);
   const navigate=useNavigate();
   const { loginUser } = useAuth();
 
@@ -21,7 +22,10 @@ export default function Login() {
     login({ email,password})
       .then((response)=>{
         loginUser(response.user, response.token);
-        navigate('/');
+        setShowToast(true);
+        setTimeout(() => {
+          navigate('/');
+        }, 1000);
       })
       .catch(()=>{
         setError('Invalid email or password');
@@ -29,6 +33,14 @@ export default function Login() {
   }
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      {showToast && (
+        <div className="fixed top-5 right-5 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
+          <div className="flex items-center gap-2">
+            <span>✓</span>
+            <span>Logged in successfully!</span>
+          </div>
+        </div>
+      )}
       <div className='w-full max-w-md bg-white p-8 rounded-xl'>
         <h1 className='text-2xl font-bold text-center mb-6'>
          Login

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -7,15 +7,28 @@ export default function Navbar() {
   const navigate = useNavigate();
   const isAdmin = user?.role === 'admin';
   const isLoggedIn = user !== null;
+  const [showToast, setShowToast] = useState(false);
 
   const handleLogout = () => {
     logoutUser();
-    navigate('/login');
+    setShowToast(true);
+    setTimeout(() => {
+      navigate('/login');
+    }, 1000);
   };
 
   return (
-    <nav className="bg-white shadow-lg border-b-4 border-purple-500">
-      <div className="flex items-center justify-between max-w-7xl mx-auto px-6 py-4 relative">
+    <>
+      {showToast && (
+        <div className="fixed top-5 right-5 bg-blue-500 text-white px-6 py-3 rounded-lg shadow-lg z-50">
+          <div className="flex items-center gap-2">
+            <span>ℹ</span>
+            <span>Logged out successfully!</span>
+          </div>
+        </div>
+      )}
+      <nav className="bg-white shadow-lg border-b-4 border-purple-500">
+        <div className="flex items-center justify-between max-w-7xl mx-auto px-6 py-4 relative">
         <Link to="/" className="text-2xl font-bold text-gray-600 hover:text-purple-700 transition">
           🔍 Lost & Found
         </Link>
@@ -73,5 +86,6 @@ export default function Navbar() {
         </div>
       </div>
     </nav>
+    </>
   );
 }
